@@ -1,54 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-
-// ===================S Stack==============
-struct SNode
-{
-	struct BNode	*data;
-	struct SNode	*next;
-};
-
-void	Push(struct SNode **top, struct BNode *x)
-{
-	struct SNode *new;
-
-	new = (struct SNode *)malloc(sizeof(struct SNode));
-	new->data = x;
-	new->next = *top;
-	*top = new;
-}
-
-struct BNode *Pop(struct SNode **top)
-{
-	struct SNode *p;
-	struct BNode *x;
-
-	if (*top)
-	{
-		p = *top;
-		*top = (*top)->next;
-		x = p->data;
-		free(p);
-	}
-	return (x);
-}
-
-
-struct BNode *StackTop(struct SNode *top)
-{
-	if (top)
-		return (top->data);
-	else
-		return (NULL);
-}
-
-int	isEmpty(struct SNode *top)
-{
-	if (top)
-		return (0);
-	return (1);
-}
-// ===================E Stack==============
+#include "stack.h"
+#include "queue.h"
 
 struct BNode
 {
@@ -57,99 +10,170 @@ struct BNode
 	struct BNode	*rchild;
 };
 
-struct QNode
+void	createBinaryTree(struct BNode **root)
 {
-	struct BNode	*data;
-	struct QNode	*next;
-};
-
-
-void	enqueue(struct QNode **front, struct QNode **rear, struct BNode *x)
-{
-	struct QNode	*new;
-
-	new = (struct QNode *)malloc(sizeof(struct QNode));
-	if (new == NULL)
-		printf("Queue is Full\n");
-	else
-	{
-		new->data = x;
-		new->next = NULL;
-		if (*front == NULL)
-		{
-			*front = new;
-			*rear = new;
-		}
-		else
-		{
-			(*rear)->next = new;
-			(*rear) = new;
-		}
-	}
-}
-
-struct BNode *dequeue(struct QNode **front, struct QNode **rear)
-{
-	struct QNode *p;
-	struct BNode *x;
-
-	if (*front == NULL)
-		return (NULL);
-	else
-	{
-		p = *front;
-		x = p->data;
-		*front = (*front)->next;
-		free(p);
-		return (x);
-	}
-}
-
-void	CreateBinaryTree(struct BNode **root)
-{
-	struct QNode	*front;
-	struct QNode	*rear;
+	struct BNode	*t;
 	struct BNode	*p;
-	struct BNode	*new;
-	int				x;
+	queue			q;
+	int 			x;
 
-	front = NULL;
-	rear = NULL;
-	(*root) = (struct BNode *)malloc(sizeof(struct BNode));
-	printf("Enter data for root: ");
+	createQueue(&q);
+	*root = (struct BNode *)malloc(sizeof(struct BNode));
+	printf("Enter root value: ");
 	scanf("%d", &(*root)->data);
 	(*root)->lchild = NULL;
 	(*root)->rchild = NULL;
-	enqueue(&front, &rear, (*root));
-	while (front != NULL)
+	Enqueue(&q, *root);
+	while (!queueIsEmpty(q))
 	{
-		p = dequeue(&front, &rear);
-		printf("Left child data of %d : ", p->data);
+		p = (struct BNode *)Dequeue(&q);
+		printf("Enter left child of %d: ", p->data);
 		scanf("%d", &x);
 		if (x != -1)
 		{
-			new = (struct BNode *)malloc(sizeof(struct BNode));
-			new->data = x;
-			new->lchild = NULL;
-			new->rchild = NULL;
-			enqueue(&front, &rear, new);
-			p->lchild = new;
+			t = (struct BNode *)malloc(sizeof(struct BNode));
+			t->data = x;
+			t->lchild = NULL;
+			t->rchild = NULL;
+			p->lchild = t;
+			Enqueue(&q, t);
 		}
-		printf("Right child data of %d : ", p->data);
+		printf("Enter right child of %d: ", p->data);
 		scanf("%d", &x);
 		if (x != -1)
 		{
-			new = (struct BNode *)malloc(sizeof(struct BNode));
-			new->data = x;
-			new->lchild = NULL;
-			new->rchild = NULL;
-			enqueue(&front, &rear, new);
-			p->rchild = new;
+			t = (struct BNode *)malloc(sizeof(struct BNode));
+			t->data = x;
+			t->lchild = NULL;
+			t->rchild = NULL;
+			p->rchild = t;
+			Enqueue(&q, t);
 		}
 	}
 }
 
-void displayTree(struct BNode *root, int level)
+void	Preorder(struct BNode *root) // Recursive Preorder traversal
+{
+	if (root)
+	{
+		printf("%d  ", root->data);
+		Preorder(root->lchild);
+		Preorder(root->rchild);
+	}
+}
+
+void	Inorder(struct BNode *root) // Recursive Inorder traversal
+{
+	if (root)
+	{
+		Inorder(root->lchild);
+		printf("%d  ", root->data);
+		Inorder(root->rchild);
+	}
+}
+
+void	Postorder(struct BNode *root) // Recursive Postorder traversal
+{
+	if (root)
+	{
+		Postorder(root->lchild);
+		Postorder(root->rchild);
+		printf("%d  ", root->data);
+	}
+}
+
+void	IPreorder(struct BNode *t) // Iterative Preorder traversal using stack
+{
+	stack	s;
+
+	createStack(&s);
+	while (t || !stackIsEmpty(s))
+	{
+		if (t)
+		{
+			printf("%d  ", t->data);
+			Push(&s, t);
+			t = t->lchild;
+		}
+		else
+		{
+			t = (struct BNode *)Pop(&s);
+			t = t->rchild;
+		}
+	}
+	printf("\n");
+}
+
+void	IInorder(struct BNode *t) // Iterative Inorder traversal using stack
+{
+	stack s;
+
+	createStack(&s);
+	while (t || !stackIsEmpty(s))
+	{
+		if (t)
+		{
+			Push(&s, t);
+			t = t->lchild;
+		}
+		else
+		{
+			t = (struct BNode *)Pop(&s);
+			printf("%d  ", t->data);
+			t = t->rchild;
+		}
+	}
+}
+
+void	IPostorder(struct BNode *t) // Iterative Postorder traversal using stack
+{
+	stack			s;
+	long int		temp;
+
+	createStack(&s);
+	while (t || !stackIsEmpty(s))
+	{
+		if (t)
+		{
+			Push(&s, t);
+			t = t->lchild;
+		}
+		else
+		{
+			temp = (long int)((struct BNode *)Pop(&s));
+			if (temp > 0)
+			{
+				Push(&s, (struct BNode *)(-temp));
+				t = ((struct BNode *)temp)->rchild;
+			}
+			else
+			{
+				printf("%d  ", ((struct BNode *)(-temp))->data);
+				t = NULL;
+			}
+		}
+	}
+}
+
+void	LevelOrder(struct BNode *root) // Level order traversal using queue
+{
+	queue			q;
+	struct BNode	*t;
+
+	createQueue(&q);
+	Enqueue(&q, root);
+	while (!queueIsEmpty(q))
+	{
+		t = (struct BNode *)Dequeue(&q);
+		printf("%d  ", t->data);
+		if (t->lchild)
+			Enqueue(&q, t->lchild);
+		if (t->rchild)
+			Enqueue(&q, t->rchild);
+	}
+}
+
+void displayTree(struct BNode *root, int level) // Display the tree in hierarchical format 
 {
     if (root == NULL) {
         return;
@@ -166,231 +190,83 @@ void displayTree(struct BNode *root, int level)
     displayTree(root->lchild, level + 1);
 }
 
-void	Preorder(struct BNode *root) // Recursive function of Preorder
+int countTotalNode(struct BNode *p) // Counts the total number of nodes in the tree.
 {
-	if (root)
-	{
-		printf("%d  ", root->data);
-		Preorder(root->lchild);
-		Preorder(root->rchild);
-	}
+    int x;
+    int y;
+
+    if (p)
+    {
+        x = countTotalNode(p->lchild);
+        y = countTotalNode(p->rchild);
+        return (x + y + 1);
+    }
+    return (0);
 }
 
-void	IPreorder(struct BNode *t) // Iterative function of Preorder
+int calculateHeight(struct BNode *p) // Calculates the height of the tree.
 {
-	struct SNode *top;
+    int x = 0;
+    int y = 0;
 
-	top = NULL;
-	while (t || !isEmpty(top))
-	{
-		if (t)
-		{
-			printf("%d  ", t->data);
-			Push(&top, t);
-			t = t->lchild;
-		}
-		else
-		{
-			t = Pop(&top);
-			t = t->rchild;
-		}
-	}
+    if (p == NULL)
+        return (0);
+    x = calculateHeight(p->lchild);
+    y = calculateHeight(p->rchild);
+    if (x > y)
+        return (x + 1);
+    else
+        return (y + 1);
 }
 
-void	Inorder(struct BNode *root) // Recursive function of Inorder Traversal
+int countLeafNodes(struct BNode *p) // Counts the number of leaf nodes (degree 0) 
 {
-	if (root)
-	{
-		Inorder(root->lchild);
-		printf("%d \n", root->data);
-		Inorder(root->rchild);
-		printf("    ");
-	}
+    int x;
+    int y;
+
+    if (p)
+    {
+        x = countLeafNodes(p->lchild);
+        y = countLeafNodes(p->rchild);
+        if (x == y && x == 0)
+            return (1);
+        else
+            return (x + y);
+    }
+    else
+        return (0);
 }
 
-void	IInorder(struct BNode *t) // Iterative function of Inorder Traversal
+int countDegreeTwoNodes(struct BNode *p) // Counts number of nodes with degree 2
 {
-	struct SNode *top;
+    int x;
+    int y;
 
-	top = NULL;
-	while (t || !isEmpty(top))
-	{
-		if (t)
-		{
-			Push(&top, t);
-			t = t->lchild;
-		}
-		else
-		{
-			t = Pop(&top);
-			printf("%d  ", t->data);
-			t = t->rchild;
-		}
-	}
+    if (p)
+    {
+        x = countDegreeTwoNodes(p->lchild);
+        y = countDegreeTwoNodes(p->rchild);
+        if (p->lchild && p->rchild)
+            return (x + y + 1);
+        else
+            return (x + y);
+    }
+    return (0);
 }
 
-void	Postorder(struct BNode *root) // Recursive function of postorder Traversal
-{
-	if (root)
-	{
-		Postorder(root->lchild);
-		Postorder(root->rchild);
-		printf("%d  ", root->data);
-	}
-}
-
-void	IPostorder(struct BNode *t) // Iterative function of postorder Traversal
-{
-	struct SNode	*top;
-	long int		temp;
-
-	top = NULL;
-	while (t || !isEmpty(top))
-	{
-		if (t)
-		{
-			Push(&top, t);
-			t = t->lchild;
-		}
-		else
-		{
-			temp = (long int)Pop(&top);
-			if (temp > 0)
-			{
-				Push(&top, (struct BNode *)(-temp));
-				t = ((struct BNode *)temp)->rchild;
-			}
-			else
-			{
-
-				printf("%d  ", ((struct BNode *)(-temp))->data);
-				t = NULL;
-			}
-		}
-	}
-}
-
-
-void	LevelOrder(struct BNode *root)
-{
-	struct QNode	*front;
-	struct QNode	*rear;
-	struct BNode	*t;
-
-	front = NULL;
-	rear = NULL;
-	enqueue(&front, &rear, root);
-	while (front != NULL)
-	{
-		t = dequeue(&front, &rear);
-		printf("%d  ", t->data);
-		if (t->lchild)
-			enqueue(&front, &rear, t->lchild);
-		if (t->rchild)
-			enqueue(&front, &rear, t->rchild);
-	}
-	printf("\n");
-}
-
-int Count(struct BNode *p)
-{
-	int	x;
-	int	y;
-
-	if (p)
-	{
-		x = Count(p->lchild);
-		y = Count(p->rchild);
-		return (x + y + 1);
-	}
-	return (0);
-}
-
-int	Height(struct BNode *p)
-{
-	int	x = 0;
-	int	y = 0;
-
-	if (p == NULL)
-		return (0);
-	x = Count(p->lchild);
-	y = Count(p->rchild);
-	if (x > y)
-		return (x + 1);
-	else
-		return (y + 1);
-}
-
-int CountLeafNodes(struct BNode *p) // count number of nodes of degree 0
+int countDegreeOneNodes(struct BNode *p) // Counts number of nodes with degree 1
 {
 	int x;
 	int y;
 
 	if (p)
 	{
-		x = CountLeafNodes(p->lchild);
-		y = CountLeafNodes(p->rchild);
-		if (x == y && x == 0)
-			return (1);
-		else
-			return (x + y);
-	}
-	else
-		return (0);
-}
-
-int countNodeDeg2(struct BNode *p)
-{
-	int x;
-	int y;
-
-	if (p)
-	{
-		x = countNodeDeg2(p->lchild);
-		y = countNodeDeg2(p->rchild);
-		if (p->lchild && p->rchild)
+		x = countDegreeOneNodes(p->lchild);
+		y = countDegreeOneNodes(p->rchild);
+		if ((p->lchild && !p->rchild) || (!p->lchild && p->rchild))
 			return (x + y + 1);
 		else
 			return (x + y);
 	}
 	return (0);
-}
-
-int countNodeDeg12(struct BNode *p) // Count number of nodes with degree 1 or 2
-{
-	int x;
-	int y;
-
-	if (p)
-	{
-		x = countNodeDeg2(p->lchild);
-		y = countNodeDeg2(p->rchild);
-		if (p->lchild || p->rchild)
-			return (x + y + 1);
-		else
-			(x + y);
-	}
-	return (0);
-}
-
-int countNodeDeg1(struct BNode *p)  // Count number of nodes with degree 1
-{
-
-	if (p == NULL)
-		return (0);
-	if (p->lchild && p->rchild == NULL)
-		return (countNodeDeg2(p->lchild) + countNodeDeg2(p->rchild) + 1);
-	else if (p->rchild && p->lchild == NULL)
-		return (countNodeDeg2(p->lchild) + countNodeDeg2(p->rchild) + 1);
-	else
-		return (countNodeDeg2(p->lchild) + countNodeDeg2(p->rchild));
-}
-
-int main(void)
-{
-	struct BNode *root;
-
-	CreateBinaryTree(&root);
-
-	displayTree(root, 0);
 }
