@@ -63,14 +63,14 @@ static inline void *StackTop(stack s)
     return NULL;
 }
 
-static inline int isEmpty(stack s)
+static inline int stackIsEmpty(stack s)
 {
     if (s.top)
         return 0;
     return 1;
 }
 
-static inline int isFull()
+static inline int stackIsFull()
 {
     node *new_node = (node *)malloc(sizeof(node));
     if (new_node == NULL)

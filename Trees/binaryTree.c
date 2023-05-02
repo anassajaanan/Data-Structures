@@ -392,5 +392,5 @@ int main(void)
 
 	CreateBinaryTree(&root);
 
-	printf("%d\n", countNodeDeg1(root));
+	displayTree(root, 0);
 }

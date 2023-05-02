@@ -3,16 +3,16 @@
 
 #include <stdlib.h>
 
-typedef struct node
+typedef struct qnode
 {
-	void		*data;
-	struct node	*next;
-} node;
+	void			*data;
+	struct qnode	*next;
+} qnode;
 
 typedef struct queue
 {
-	node	*front;
-	node	*rear;
+	qnode	*front;
+	qnode	*rear;
 } queue;
 
 void	createQueue(queue *q)
@@ -23,9 +23,9 @@ void	createQueue(queue *q)
 
 void	Enqueue(queue *q, void	*data)
 {
-	node	*newNode;
+	qnode	*newNode;
 
-	newNode = (node *)malloc(sizeof(node));
+	newNode = (qnode *)malloc(sizeof(qnode));
 	newNode->data = data;
 	newNode->next = NULL;
 	if (q->front == NULL)
@@ -42,7 +42,7 @@ void	Enqueue(queue *q, void	*data)
 
 void	*Dequeue(queue *q)
 {
-	node	*p;
+	qnode	*p;
 	void	*data;
 
 	if (q->front == NULL)
