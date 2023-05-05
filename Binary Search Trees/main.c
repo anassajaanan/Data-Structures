@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "stack.h"
-#include "queue.h"
 
 struct BNode
 {
